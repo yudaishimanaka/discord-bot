@@ -6,16 +6,39 @@ import (
 	"log"
 	"strings"
 	"time"
+	"encoding/json"
+	"io/ioutil"
 )
 
+type BotInfo struct {
+	ClientId	string `json:"client_id"`
+	Token 		string `json:"token"`
+}
+
 var (
-	Token      = "Bot" + "YOUR_TOKEN" //"Bot"という接頭辞がないと401 unauthorizedエラーが起きます
-	BotName    = "<@YOUR_CLIENT_ID>"
 	stopBot    = make(chan bool)
 	HelloWorld = "!hello"
 )
 
+func initialize(botInfo BotInfo) (botName string, botToken string) {
+	botName = "<@"+string(botInfo.ClientId)+">"
+	botToken = "Bot "+string(botInfo.Token)
+	return
+}
+
 func main() {
+	//BotInfoにクライアントIDとトークンを突っ込む
+	var botInfo BotInfo
+	file, err := ioutil.ReadFile("config.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	err2 := json.Unmarshal(file, &botInfo)
+	if err2 != nil {
+		log.Fatal(err2)
+	}
+	_, Token := initialize(botInfo)
+
 	//Discordのセッションを作成
 	discord, err := discordgo.New()
 	discord.Token = Token
@@ -37,6 +60,17 @@ func main() {
 }
 
 func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+	//BotInfoにクライアントIDとトークンを突っ込む
+	var botInfo BotInfo
+	file, err := ioutil.ReadFile("config.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	err2 := json.Unmarshal(file, &botInfo)
+	if err2 != nil {
+		log.Fatal(err2)
+	}
+	BotName, _ := initialize(botInfo)
 	c, err := s.State.Channel(m.ChannelID) //チャンネル取得
 	if err != nil {
 		log.Println("Error getting channel: ", err)
