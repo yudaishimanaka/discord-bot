@@ -18,6 +18,7 @@ type BotInfo struct {
 var (
 	stopBot    = make(chan bool)
 	HelloWorld = "!hello"
+	HappyBirthDay = "!happybirthday"
 )
 
 func initialize(botInfo BotInfo) (botName string, botToken string) {
@@ -81,6 +82,9 @@ func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	switch {
 	case strings.HasPrefix(m.Content, fmt.Sprintf("%s %s", BotName, HelloWorld)):
 		sendMessage(s, c, "私は桜ねね！！\nよろしく！！")
+
+	case strings.HasPrefix(m.Content, fmt.Sprintf("%s %s", BotName, HappyBirthDay)):
+		sendMessage(s, c, "ねねの誕生日覚えてくれてたんだ！！\nありがとう！！")
 	}
 }
 
